@@ -1,5 +1,7 @@
 #include <Windows.h>
 
+#include "Chess.h"
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;
 LPCTSTR lpszClass = TEXT("First");
@@ -35,34 +37,30 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	return (int)Message.wParam;
 }
 
+int bx, by;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	int bMap = 0;
 
 	switch (iMessage) {
+	case WM_CREATE:
+		bx = 10; by = 10; //Setting the Board Position
+		break;
+	case WM_LBUTTONDOWN:
+		//ChessBoard Message
+		
+
+		break;
 	case WM_PAINT:
 		PAINTSTRUCT ps;
-		HBRUSH hMapBs[2];
-		HBRUSH hOldBs;
+		HBRUSH hOldBs, hTmpBrush;
 
 		BeginPaint(hWnd, &ps);
 		
-		hMapBs[0] = CreateSolidBrush(RGB(200, 200, 200));
-		hMapBs[1] = CreateSolidBrush(RGB(255,255,255));
-
-		hOldBs = (HBRUSH)SelectObject(ps.hdc, hMapBs[0]);
-
-		for (int iy = 10; iy < 10 + (50 * 8); iy += 50) {
-			for (int ix = 10; ix < 10 + (50 * 8); ix += 50) {
-				bMap = !bMap;
-
-				SelectObject(ps.hdc, hMapBs[bMap]);
-				
-				Rectangle(ps.hdc, ix, iy, ix + 50, iy + 50);
-			}
-			bMap = !bMap;
-		}
-
-		//Rectangle(ps.hdc, 10, 10, 100, 100);
+		hTmpBrush = CreateSolidBrush(WHITE_BRUSH);	//temporary brush to extract old brush
+		hOldBs = (HBRUSH)SelectObject(ps.hdc,hTmpBrush);	//extract old brush
+		
+		PaintChessBoard(ps.hdc, 10, 10);
 
 		SelectObject(ps.hdc, hOldBs);
 		EndPaint(hWnd, &ps);
