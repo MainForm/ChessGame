@@ -49,7 +49,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:
 		//ChessBoard Message
 		
-
+		ChessBoardMessage(bx,by,LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_PAINT:
 		PAINTSTRUCT ps;
