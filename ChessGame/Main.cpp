@@ -36,7 +36,37 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	int bMap = 0;
+
 	switch (iMessage) {
+	case WM_PAINT:
+		PAINTSTRUCT ps;
+		HBRUSH hMapBs[2];
+		HBRUSH hOldBs;
+
+		BeginPaint(hWnd, &ps);
+		
+		hMapBs[0] = CreateSolidBrush(RGB(200, 200, 200));
+		hMapBs[1] = CreateSolidBrush(RGB(255,255,255));
+
+		hOldBs = (HBRUSH)SelectObject(ps.hdc, hMapBs[0]);
+
+		for (int iy = 10; iy < 10 + (50 * 8); iy += 50) {
+			for (int ix = 10; ix < 10 + (50 * 8); ix += 50) {
+				bMap = !bMap;
+
+				SelectObject(ps.hdc, hMapBs[bMap]);
+				
+				Rectangle(ps.hdc, ix, iy, ix + 50, iy + 50);
+			}
+			bMap = !bMap;
+		}
+
+		//Rectangle(ps.hdc, 10, 10, 100, 100);
+
+		SelectObject(ps.hdc, hOldBs);
+		EndPaint(hWnd, &ps);
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
