@@ -64,7 +64,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		PaintChessBoard(ps.hdc, 10, 10);
 		PaintChessPiece(ps.hdc, bx, by);
 
-
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_CLOSE:

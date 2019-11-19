@@ -7,6 +7,7 @@ HBITMAP ChessPieceBitmap[2][8];
 
 void InitiateChessGame() {
 	DeleteChessGame();
+	int procedure[8] = { 2, 4, 3, 1, 2, 3, 4, 2 };
 
 	//Create Bitmaps of each chesspiece
 	for (int i = 0; i < 2; i++) {
@@ -15,12 +16,13 @@ void InitiateChessGame() {
 		}
 	}
 	
-	for (int i = 0; i < 6; i++) {
-		AddChessPiece(i,0,i, 0);
+	for (int i = 0; i < 8; i++) {
+		AddChessPiece(i, 0, procedure[i], 0);
+		AddChessPiece(i,1,5, 0);
+		AddChessPiece(i, 7, procedure[i], 1);
+		AddChessPiece(i,6,5, 1);
 	}
-	for (int i = 0; i < 6; i++) {
-		AddChessPiece(i,1,i, 1);
-	}
+
 }
 
 void DeleteChessGame() {
