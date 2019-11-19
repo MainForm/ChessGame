@@ -16,10 +16,10 @@ void InitiateChessGame() {
 	}
 	
 	for (int i = 0; i < 6; i++) {
-		AddChessPiece(&Board[0][i],i, 0);
+		AddChessPiece(i,0,i, 0);
 	}
 	for (int i = 0; i < 6; i++) {
-		AddChessPiece(&Board[1][i],i, 1);
+		AddChessPiece(i,1,i, 1);
 	}
 }
 
@@ -27,7 +27,7 @@ void DeleteChessGame() {
 	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
 		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
 			if (Board[iy][ix] != NULL) {
-				DeleteChessPiece(&Board[iy][ix]);
+				DeleteChessPiece(iy,ix);
 			}
 		}
 	}
@@ -39,21 +39,24 @@ void DeleteChessGame() {
 	}
 }
 
-void AddChessPiece(ChessPiece ** cp,int type,int team) {
-	if (*cp != NULL)
+void AddChessPiece(int x,int y,int type,int team) {
+	if (Board[y][x] != NULL)
 		return;
 
-	*cp = (ChessPiece*)malloc(sizeof(ChessPiece));
+	Board[y][x] = (ChessPiece*)malloc(sizeof(ChessPiece));
 	
-	(*cp)->type = type;
-	(*cp)->team = team;
+	Board[y][x]->type = type;
+	Board[y][x]->team = team;
 
-	(*cp)->hBitmap = &ChessPieceBitmap[team][type];
+	Board[y][x]->hBitmap = &ChessPieceBitmap[team][type];
 }
 
-void DeleteChessPiece(ChessPiece** cp) {
-	free(*cp);
-	*cp = NULL;
+void DeleteChessPiece(int x,int y) {
+	if (Board[y][x] == NULL)
+		return;
+
+	free(Board[y][x]);
+	Board[y][x] = NULL;
 }
 
 void PaintChessPiece(HDC hdc,int sx,int sy) {
@@ -105,18 +108,26 @@ void PaintChessBoard(HDC hdc, int sx, int sy) {
 	DeleteObject(hMapBs[1]);
 }
 
+int bMoveMode, prevX, prevY;
+
 void ChessBoardMessage(int sx, int sy, int x, int y) {
 	int px = x - sx, py = y - sy;// setting offset point at 0
 	int bx = px / MAP_SIZE, by = py / MAP_SIZE;
-	WCHAR chMessage[100]; 
 
 
 	if ((bx < 0 || bx > 7) || (by < 0 || by > 7))	//exit functio when point get out off board area.
 		return;
 	
-	if (Board[by][bx] != NULL) {
-		wsprintf(chMessage, TEXT("%d,%d"), Board[by][bx]->team, Board[by][bx]->type);
-
-		MessageBox(NULL, chMessage, TEXT("È®ÀÎ"), MB_OK);
+	if (bMoveMode == FALSE) {
+		if (Board[by][bx] != NULL) {
+			prevX = bx; prevY = by;
+			bMoveMode = TRUE;
+		}
+	}
+	else {
+		DeleteChessPiece(bx, by);
+		AddChessPiece(bx, by, Board[prevY][prevX]->type, Board[prevY][prevX]->team);
+		DeleteChessPiece(prevX, prevY);
+		bMoveMode = FALSE;
 	}
 }

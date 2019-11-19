@@ -53,6 +53,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		//ChessBoard Message
 		
 		ChessBoardMessage(bx,by,LOWORD(lParam), HIWORD(lParam));
+
+		InvalidateRect(hWnd, NULL, 0);
 		break;
 	case WM_PAINT:
 		PAINTSTRUCT ps;

@@ -16,8 +16,8 @@ typedef struct _ChessPiece {
 void InitiateChessGame();
 void DeleteChessGame();
 
-void AddChessPiece(ChessPiece** cp,int type, int team);
-void DeleteChessPiece(ChessPiece** cp);
+void AddChessPiece(int x,int y,int type, int team);
+void DeleteChessPiece(int x, int y);
 void PaintChessPiece(HDC hdc, int sx, int sy);
 
 void PaintChessBoard(HDC hdc, int sx, int sy);
