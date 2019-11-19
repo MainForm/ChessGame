@@ -1,6 +1,55 @@
 #include "Chess.h"
+#include "resource.h"
 
-#define MAP_SIZE 50
+extern HINSTANCE g_hInst;
+
+void InitiateChessGame(ChessPiece  Board[][MAP_BLOCKCOUNT]) {
+	DeleteChessGame(Board);
+
+	for (int i = 0; i < 6; i++) {
+		AddChessPiece(&Board[0][i], i, 0);
+	}
+}
+
+void DeleteChessGame(ChessPiece Board[][MAP_BLOCKCOUNT]) {
+	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
+		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
+			DeleteObject(Board[iy][ix].hBitmap);
+
+			memset(&Board[iy][ix], NULL, sizeof(ChessPiece));
+		}
+	}
+}
+
+void AddChessPiece(ChessPiece* cp, int type,int team) {
+	cp->type = type;
+	cp->team = team;
+
+	cp->hBitmap = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_KING1 + type + (10 * team)));
+}
+
+void PaintChessPiece(HDC hdc, ChessPiece Board[][MAP_BLOCKCOUNT],int sx,int sy) {
+	HDC MemDC;
+	HBITMAP hOldBitmap,hTmpBitmap;
+
+	MemDC = CreateCompatibleDC(hdc);
+
+	hTmpBitmap = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_KING1));
+	hOldBitmap = (HBITMAP)SelectObject(MemDC, hTmpBitmap);
+
+	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
+		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
+			if (Board[iy][ix].hBitmap != NULL) {
+				SelectObject(MemDC, Board[iy][ix].hBitmap);
+				TransparentBlt(hdc,sx + (MAP_SIZE * ix) + 1, sy + (MAP_SIZE * iy), 49, 49, MemDC, 0, 0, 100, 100, RGB(255, 255, 255));
+			}
+		}
+	}
+
+	SelectObject(MemDC, hOldBitmap);
+	DeleteObject(hTmpBitmap);
+	DeleteDC(MemDC);
+}
 
 void PaintChessBoard(HDC hdc, int sx, int sy) {
 	HBRUSH hMapBs[2], hOldBrush;
@@ -23,6 +72,9 @@ void PaintChessBoard(HDC hdc, int sx, int sy) {
 	}
 
 	SelectObject(hdc, hOldBrush);//return brush
+
+	DeleteObject(hMapBs[0]);
+	DeleteObject(hMapBs[1]);
 }
 
 void ChessBoardMessage(int sx, int sy, int x, int y) {

@@ -1,10 +1,12 @@
 #include <Windows.h>
 
+#include "resource.h"
 #include "Chess.h"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;
 LPCTSTR lpszClass = TEXT("First");
+
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
 	HWND hWnd;
@@ -37,6 +39,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	return (int)Message.wParam;
 }
 
+ChessPiece Board[8][8];
 int bx, by;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
@@ -45,6 +48,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	switch (iMessage) {
 	case WM_CREATE:
 		bx = 10; by = 10; //Setting the Board Position
+		InitiateChessGame(Board);
 		break;
 	case WM_LBUTTONDOWN:
 		//ChessBoard Message
@@ -53,17 +57,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_PAINT:
 		PAINTSTRUCT ps;
-		HBRUSH hOldBs, hTmpBrush;
 
 		BeginPaint(hWnd, &ps);
-		
-		hTmpBrush = CreateSolidBrush(WHITE_BRUSH);	//temporary brush to extract old brush
-		hOldBs = (HBRUSH)SelectObject(ps.hdc,hTmpBrush);	//extract old brush
-		
-		PaintChessBoard(ps.hdc, 10, 10);
 
-		SelectObject(ps.hdc, hOldBs);
+		PaintChessBoard(ps.hdc, 10, 10);
+		PaintChessPiece(ps.hdc, Board, bx, by);
+
+
 		EndPaint(hWnd, &ps);
+		break;
+	case WM_CLOSE:
+		DeleteChessGame(Board);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
