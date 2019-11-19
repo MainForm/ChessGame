@@ -39,7 +39,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	return (int)Message.wParam;
 }
 
-ChessPiece Board[8][8];
 int bx, by;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
@@ -48,7 +47,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	switch (iMessage) {
 	case WM_CREATE:
 		bx = 10; by = 10; //Setting the Board Position
-		InitiateChessGame(Board);
+		InitiateChessGame();
 		break;
 	case WM_LBUTTONDOWN:
 		//ChessBoard Message
@@ -61,13 +60,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		BeginPaint(hWnd, &ps);
 
 		PaintChessBoard(ps.hdc, 10, 10);
-		PaintChessPiece(ps.hdc, Board, bx, by);
+		PaintChessPiece(ps.hdc, bx, by);
 
 
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_CLOSE:
-		DeleteChessGame(Board);
+		DeleteChessGame();
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);

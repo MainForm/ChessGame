@@ -10,14 +10,15 @@
 typedef struct _ChessPiece {
 	int type;
 	int team;
-	HBITMAP hBitmap;
+	HBITMAP *hBitmap;
 }ChessPiece;
 
-void InitiateChessGame(ChessPiece Board[][MAP_BLOCKCOUNT]);
-void DeleteChessGame(ChessPiece Board[][MAP_BLOCKCOUNT]);
+void InitiateChessGame();
+void DeleteChessGame();
 
-void AddChessPiece(ChessPiece* cp, int type, int team);
-void PaintChessPiece(HDC hdc, ChessPiece Board[][MAP_BLOCKCOUNT], int sx, int sy);
+void AddChessPiece(ChessPiece** cp,int type, int team);
+void DeleteChessPiece(ChessPiece** cp);
+void PaintChessPiece(HDC hdc, int sx, int sy);
 
 void PaintChessBoard(HDC hdc, int sx, int sy);
 
