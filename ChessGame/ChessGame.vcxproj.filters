@@ -36,9 +36,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Piece picture\King.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
     <Image Include="Piece picture\Queen1.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
@@ -52,6 +49,27 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="Piece picture\Pawn1.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="Piece picture\King1.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="Piece picture\Bishop0.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="Piece picture\King0.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="Piece picture\Knight0.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="Piece picture\Pawn0.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="Piece picture\Queen0.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="Piece picture\Rook0.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

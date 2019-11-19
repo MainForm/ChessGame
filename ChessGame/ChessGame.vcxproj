@@ -155,11 +155,17 @@
     <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Piece picture\Bishop0.bmp" />
     <Image Include="Piece picture\Bishop1.bmp" />
-    <Image Include="Piece picture\King.bmp" />
+    <Image Include="Piece picture\King0.bmp" />
+    <Image Include="Piece picture\King1.bmp" />
+    <Image Include="Piece picture\Knight0.bmp" />
     <Image Include="Piece picture\Knight1.bmp" />
+    <Image Include="Piece picture\Pawn0.bmp" />
     <Image Include="Piece picture\Pawn1.bmp" />
+    <Image Include="Piece picture\Queen0.bmp" />
     <Image Include="Piece picture\Queen1.bmp" />
+    <Image Include="Piece picture\Rook0.bmp" />
     <Image Include="Piece picture\Rook1.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -9,6 +9,9 @@ void InitiateChessGame(ChessPiece  Board[][MAP_BLOCKCOUNT]) {
 	for (int i = 0; i < 6; i++) {
 		AddChessPiece(&Board[0][i], i, 0);
 	}
+	for (int i = 0; i < 6; i++) {
+		AddChessPiece(&Board[1][i], i, 1);
+	}
 }
 
 void DeleteChessGame(ChessPiece Board[][MAP_BLOCKCOUNT]) {
