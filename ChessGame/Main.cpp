@@ -5,8 +5,9 @@
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;
-LPCTSTR lpszClass = TEXT("First");
+LPCTSTR lpszClass = TEXT("ChessGame");
 
+HWND hMain;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
 	HWND hWnd;
@@ -46,14 +47,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 	switch (iMessage) {
 	case WM_CREATE:
+		hMain = hWnd;
 		bx = 10; by = 10; //Setting the Board Position
 		InitiateChessGame();
 		break;
 	case WM_LBUTTONDOWN:
-		//ChessBoard Message
-		
+
+		//ChessBoard Message handle function
 		ChessBoardMessage(bx,by,LOWORD(lParam), HIWORD(lParam));
 
+		//redraw window
 		InvalidateRect(hWnd, NULL, 0);
 		break;
 	case WM_PAINT:
@@ -61,7 +64,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 		BeginPaint(hWnd, &ps);
 
-		PaintChessBoard(ps.hdc, 10, 10);
+		PaintChessBoard(ps.hdc, bx, by);
 		PaintChessPiece(ps.hdc, bx, by);
 
 		EndPaint(hWnd, &ps);
