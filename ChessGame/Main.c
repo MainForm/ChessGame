@@ -2,6 +2,7 @@
 
 #include "resource.h"
 #include "Chess.h"
+#include "LinkedList.h"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;

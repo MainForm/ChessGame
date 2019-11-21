@@ -146,10 +146,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Chess.c" />
+    <ClCompile Include="LinkedList.c" />
     <ClCompile Include="Main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Chess.h" />
+    <ClInclude Include="LinkedList.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
