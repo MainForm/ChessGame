@@ -10,7 +10,6 @@
 typedef struct _ChessPiece {
 	int type;
 	int team;
-	HBITMAP *hBitmap;
 }ChessPiece;
 
 /*

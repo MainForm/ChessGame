@@ -44,6 +44,7 @@ int bx, by;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	int bMap = 0;
+	PAINTSTRUCT ps;
 
 	switch (iMessage) {
 	case WM_CREATE:
@@ -60,7 +61,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		InvalidateRect(hWnd, NULL, 0);
 		break;
 	case WM_PAINT:
-		PAINTSTRUCT ps;
 
 		BeginPaint(hWnd, &ps);
 

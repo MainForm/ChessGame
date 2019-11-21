@@ -58,8 +58,6 @@ void AddChessPiece(int x,int y,int type,int team) {
 	
 	Board[y][x].cp->type = type;
 	Board[y][x].cp->team = team;
-
-	Board[y][x].cp->hBitmap = &ChessPieceBitmap[team][type];
 }
 
 void DeleteChessPiece(int x,int y) {
@@ -83,7 +81,7 @@ void PaintChessPiece(HDC hdc,int sx,int sy) {
 	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
 		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
 			if (Board[iy][ix].cp != NULL) {
-				SelectObject(MemDC, *Board[iy][ix].cp->hBitmap);
+				SelectObject(MemDC, ChessPieceBitmap[GetTeam(ix,iy)][GetType(ix,iy)]);
 				TransparentBlt(hdc,sx + (MAP_SIZE * ix) + 1, sy + (MAP_SIZE * iy), 49, 49, MemDC, 0, 0, 100, 100, RGB(255, 255, 255));
 			}
 		}
