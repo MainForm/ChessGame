@@ -13,6 +13,20 @@ typedef struct _ChessPiece {
 	HBITMAP *hBitmap;
 }ChessPiece;
 
+/*
+if cp is NULL,That Block dosen't have any chess piece.
+if(bCanMove == TRUE){
+	if(cp == NULL){
+		this block can have any chess piece.
+	}
+	else if(cp != NULL){
+		that chess piece that is had by block is can be taken by other chess piece.
+	}
+}
+else{
+	this block is blocked.
+}
+*/
 typedef struct _ChessBlock {
 	int bCanMove;
 	ChessPiece* cp;
