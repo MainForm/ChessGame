@@ -191,8 +191,7 @@ int SetBoardMovement(int x, int y, int team) {
 }
 
 int SetChessPieceMovement(int x, int y, int type, int team) {
-	int KnightMove[8][2] = { {2,1},{2,-1},{-2,1},{-2,-1},
-			{1,2},{1,-2},{-1,2},{-1,-2 } };
+	int KnightMove[8][2] = { {2,1},{2,-1},{-2,1},{-2,-1}, {1,2},{1,-2},{-1,2},{-1,-2 } };
 	int BishopMove[4][2] = { {1,1},{1,-1},{-1,1},{-1,-1} };
 	int RookMove[4][2] = { {1,0},{-1,0},{0,1},{0,-1} };
 
@@ -277,7 +276,7 @@ int SetChessPieceMovement(int x, int y, int type, int team) {
 		if (Board[FOWARD(y, 1, team)][x].cp == NULL) {
 			SetBoardMovement(x, FOWARD(y, 1, team), team);
 
-			if (y == 1 || y == 6 && Board[FOWARD(y, 2, team)][x].cp == NULL)
+			if ((y == 1 || y == 6) && Board[FOWARD(y, 2, team)][x].cp == NULL)
 				SetBoardMovement(x, FOWARD(y, 2, team), team);
 		}
 		
@@ -289,8 +288,6 @@ int SetChessPieceMovement(int x, int y, int type, int team) {
 		}
 
 		break;
-	default:
-		return 1;
 	}
 
 	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
