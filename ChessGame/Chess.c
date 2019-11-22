@@ -11,6 +11,7 @@ extern HINSTANCE g_hInst;
 extern HWND hMain;
 ChessBlock Board[8][8] = { 0, };
 HBITMAP ChessPieceBitmap[2][8];
+int bMoveMode, prevX = -1, prevY = -1,prevTeam = -1;
 
 void InitiateChessGame() {
 	int procedure[8] = { 2, 4, 3, 1, 0, 3, 4, 2 };
@@ -104,9 +105,11 @@ void PaintChessBoard(HDC hdc, int sx, int sy) {
 
 	for (int iy = sy; iy < sy + (MAP_SIZE * 8); iy += MAP_SIZE) {
 		for (int ix = sx; ix < sx + (MAP_SIZE * 8); ix += MAP_SIZE) {
+			int tx = (ix - sx) / MAP_SIZE, ty = (iy - sy) / MAP_SIZE;
+
 			bMap = !bMap;
 
-			if (Board[(iy - sy) / MAP_SIZE][(ix - sx) / MAP_SIZE].bCanMove)
+			if (bMoveMode == TRUE && Board[ty][tx].bCanMove[prevTeam])
 				SelectObject(hdc, hMapBs[2]);
 			else
 				SelectObject(hdc, hMapBs[bMap]);
@@ -122,8 +125,6 @@ void PaintChessBoard(HDC hdc, int sx, int sy) {
 	DeleteObject(hMapBs[1]);
 	DeleteObject(hMapBs[2]);
 }
-
-int bMoveMode, prevX = -1, prevY = -1;
 
 void ChessBoardMessage(int sx, int sy, int x, int y) {
 	int px = x - sx, py = y - sy;// setting offset point at 0
@@ -143,6 +144,7 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 				return;
 
 			prevX = bx; prevY = by;
+			prevTeam = GetTeam(bx, by);
 			bMoveMode = TRUE;
 		}
 	}
@@ -154,7 +156,7 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 			return;
 		}
 
-		if (Board[by][bx].bCanMove == FALSE)
+		if (Board[by][bx].bCanMove[prevTeam] == FALSE)
 			return;
 
 		if (GetType(bx, by) == 0)
@@ -163,6 +165,9 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 		DeleteChessPiece(bx, by);
 		AddChessPiece(bx, by, Board[prevY][prevX].cp->type, Board[prevY][prevX].cp->team);
 		DeleteChessPiece(prevX, prevY);
+
+		if (IsCheck() != -1)
+			MessageBox(hMain, TEXT("Df"), TEXT("Df"), MB_OK);
 
 		CancelMoveMode();
 
@@ -181,7 +186,7 @@ int SetBoardMovement(int x, int y, int team) {
 		if (Board[y][x].cp != NULL && Board[y][x].cp->team == team)
 			return 0;
 
-		Board[y][x].bCanMove = TRUE;
+		Board[y][x].bCanMove[team] = TRUE;
 		return 1;
 	}
 
@@ -290,7 +295,7 @@ int SetChessPieceMovement(int x, int y, int type, int team) {
 
 	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
 		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-			if (Board[iy][ix].bCanMove) {
+			if (Board[iy][ix].bCanMove[team]) {
 				return 0;
 			}
 		}
@@ -302,9 +307,43 @@ int SetChessPieceMovement(int x, int y, int type, int team) {
 void CancelMoveMode() {
 	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
 		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-			Board[iy][ix].bCanMove = FALSE;
+			Board[iy][ix].bCanMove[0] = FALSE;
+			Board[iy][ix].bCanMove[1] = FALSE;
 		}
 	}
 	prevX = -1; prevY = -1;
 	bMoveMode = FALSE;
+}
+
+int IsCheck() {
+	int rs = -1;
+
+	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
+		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
+			Board[iy][ix].bCanMove[0] = FALSE;
+			Board[iy][ix].bCanMove[1] = FALSE;
+		}
+	}
+
+	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
+		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
+			SetChessPieceMovement(ix, iy, GetType(ix, iy), GetTeam(ix, iy));
+		}
+	}
+
+	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
+		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
+			if (GetType(ix, iy) == 0 && Board[iy][ix].bCanMove[!GetTeam(ix, iy)] == TRUE)
+				rs = GetTeam(ix, iy);
+		}
+	}
+
+	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
+		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
+			Board[iy][ix].bCanMove[0] = FALSE;
+			Board[iy][ix].bCanMove[1] = FALSE;
+		}
+	}
+
+	return rs;
 }

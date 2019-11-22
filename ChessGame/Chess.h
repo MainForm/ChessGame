@@ -27,7 +27,7 @@ else{
 }
 */
 typedef struct _ChessBlock {
-	int bCanMove;
+	int bCanMove[2];
 	ChessPiece* cp;
 } ChessBlock;
 
@@ -45,5 +45,7 @@ void CancelMoveMode();
 
 //sx and sy are start point of chess board and x and y are clicked point
 void ChessBoardMessage(int sx, int sy, int x, int y);
+
+int IsCheck();
 
 #endif
