@@ -11,7 +11,7 @@ extern HINSTANCE g_hInst;
 extern HWND hMain;
 ChessBlock Board[8][8] = { 0, };
 HBITMAP ChessPieceBitmap[2][8];
-int bMoveMode, prevX = -1, prevY = -1,prevTeam = -1;
+int bMoveMode,bCheck = -1, prevX = -1, prevY = -1,prevTeam = -1;
 
 void InitiateChessGame() {
 	int procedure[8] = { 2, 4, 3, 1, 0, 3, 4, 2 };
@@ -139,6 +139,13 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 	
 	if (bMoveMode == FALSE) {
 		if (Board[by][bx].cp != NULL) {
+			//Show Block that opposite team chess piece can move
+			for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
+				for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
+					if(GetTeam(ix,iy) == !GetTeam(bx,by))
+						SetChessPieceMovement(ix, iy, GetType(ix, iy), GetTeam(ix, iy));
+				}
+			}
 			
 			if (SetChessPieceMovement(bx, by, Board[by][bx].cp->type, Board[by][bx].cp->team))
 				return;
@@ -162,11 +169,9 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 		if (GetType(bx, by) == 0)
 			bFinish = TRUE;
 
-		DeleteChessPiece(bx, by);
-		AddChessPiece(bx, by, Board[prevY][prevX].cp->type, Board[prevY][prevX].cp->team);
-		DeleteChessPiece(prevX, prevY);
+		MoveChessPiece(bx, by, prevX, prevY,NULL);
 
-		if (IsCheck() != -1)
+		if (bCheck = IsCheck(),bCheck != -1)
 			MessageBox(hMain, TEXT("Df"), TEXT("Df"), MB_OK);
 
 		CancelMoveMode();
@@ -346,4 +351,19 @@ int IsCheck() {
 	}
 
 	return rs;
+}
+
+int MoveChessPiece(int dx, int dy, int fx, int fy,ChessPiece * CPreturn) {
+
+	if (Board[fy][fx].cp == NULL)
+		return 0;
+
+	if (Board[dy][dx].cp != NULL && CPreturn != NULL)
+		*CPreturn = *Board[dy][dx].cp;
+
+	DeleteChessPiece(dx, dy);
+	AddChessPiece(dx, dy, GetType(fx, fy), GetTeam(fx, fy));
+	DeleteChessPiece(fx, fy);
+
+	return 1;
 }

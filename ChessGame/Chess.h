@@ -45,6 +45,8 @@ void CancelMoveMode();
 
 //sx and sy are start point of chess board and x and y are clicked point
 void ChessBoardMessage(int sx, int sy, int x, int y);
+//return the chess piece that was had by destination block.
+int MoveChessPiece(int dx, int dy, int fx, int fy, ChessPiece* CPreturn);
 
 int IsCheck();
 
