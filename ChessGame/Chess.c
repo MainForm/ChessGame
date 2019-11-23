@@ -139,16 +139,9 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 	
 	if (bMoveMode == FALSE) {
 		if (Board[by][bx].cp != NULL) {
-			//Show Block that opposite team chess piece can move
-			for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
-				for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-					if(GetTeam(ix,iy) == !GetTeam(bx,by))
-						SetChessPieceMovement(ix, iy, GetType(ix, iy), GetTeam(ix, iy));
-				}
-			}
+
+			SetChessPieceMovement(bx, by, Board[by][bx].cp->type, Board[by][bx].cp->team);
 			
-			if (SetChessPieceMovement(bx, by, Board[by][bx].cp->type, Board[by][bx].cp->team))
-				return;
 
 			prevX = bx; prevY = by;
 			prevTeam = GetTeam(bx, by);
@@ -171,8 +164,10 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 
 		MoveChessPiece(bx, by, prevX, prevY,NULL);
 
-		if (bCheck = IsCheck(),bCheck != -1)
+		if (bCheck = IsCheck(!GetTeam(bx, by)), bCheck == 1) {
 			MessageBox(hMain, TEXT("Df"), TEXT("Df"), MB_OK);
+			bCheck = 0;
+		}
 
 		CancelMoveMode();
 
@@ -192,7 +187,9 @@ int SetBoardMovement(int x, int y, int team) {
 			return 0;
 
 		Board[y][x].bCanMove[team] = TRUE;
-		return 1;
+
+		if(GetType(x,y) == 0 && GetTeam(x,y) != team)
+			return 1;
 	}
 
 	return 0;
@@ -202,14 +199,17 @@ int SetChessPieceMovement(int x, int y, int type, int team) {
 	int KnightMove[8][2] = { {2,1},{2,-1},{-2,1},{-2,-1}, {1,2},{1,-2},{-1,2},{-1,-2 } };
 	int BishopMove[4][2] = { {1,1},{1,-1},{-1,1},{-1,-1} };
 	int RookMove[4][2] = { {1,0},{-1,0},{0,1},{0,-1} };
+	int rs = 0;
 
 	switch (type) {
 	case 0:
 		for (int i = 0; i < 4; i++) {
-			SetBoardMovement(x + BishopMove[i][0], y + BishopMove[i][1], team);
+			if (SetBoardMovement(x + BishopMove[i][0], y + BishopMove[i][1], team))
+				rs = 1;
 		}
 		for (int i = 0; i < 4; i++) {
-			SetBoardMovement(x + RookMove[i][0], y + RookMove[i][1], team);
+			if (SetBoardMovement(x + RookMove[i][0], y + RookMove[i][1], team))
+				rs = 1;
 		}
 		break;
 	case 1://Movement of Queen
@@ -221,7 +221,8 @@ int SetChessPieceMovement(int x, int y, int type, int team) {
 				ty += BishopMove[i][1];
 				if (!IsRightPos(tx) || !IsRightPos(ty))
 					break;
-				SetBoardMovement(tx, ty, team);
+				if (SetBoardMovement(tx, ty, team))
+					rs = 1;
 				if (GetTeam(tx, ty) != -1)
 					break;
 			}
@@ -234,7 +235,8 @@ int SetChessPieceMovement(int x, int y, int type, int team) {
 				ty += RookMove[i][1];
 				if (!IsRightPos(tx) || !IsRightPos(ty))
 					break;
-				SetBoardMovement(tx, ty, team);
+				if (SetBoardMovement(tx, ty, team))
+					rs = 1;
 				if (GetTeam(tx, ty) != -1)
 					break;
 			}
@@ -250,7 +252,8 @@ int SetChessPieceMovement(int x, int y, int type, int team) {
 				ty += RookMove[i][1];
 				if (!IsRightPos(tx) || !IsRightPos(ty))
 					break;
-				SetBoardMovement(tx, ty, team);
+				if (SetBoardMovement(tx, ty, team))
+					rs = 1;
 				if (GetTeam(tx, ty) != -1)
 					break;
 			} 
@@ -266,7 +269,8 @@ int SetChessPieceMovement(int x, int y, int type, int team) {
 				ty += BishopMove[i][1];
 				if (!IsRightPos(tx) || !IsRightPos(ty))
 					break;
-				SetBoardMovement(tx, ty, team);
+				if (SetBoardMovement(tx, ty, team))
+					rs = 1;
 				if (GetTeam(tx, ty) != -1)
 					break;
 			}
@@ -276,79 +280,56 @@ int SetChessPieceMovement(int x, int y, int type, int team) {
 	case 4://Movement of Knight
 
 		for (int i = 0; i < 8; i++) {
-			SetBoardMovement(x + KnightMove[i][0], y + KnightMove[i][1], team);
+			if (SetBoardMovement(x + KnightMove[i][0], y + KnightMove[i][1], team))
+				rs = 1;
 		}
 		break;
 	case 5://Movement of Pawn
 		
 		if (Board[FOWARD(y, 1, team)][x].cp == NULL) {
-			SetBoardMovement(x, FOWARD(y, 1, team), team);
+			if (SetBoardMovement(x, FOWARD(y, 1, team), team))
+				rs = 1;
 
 			if ((y == 1 || y == 6) && Board[FOWARD(y, 2, team)][x].cp == NULL)
-				SetBoardMovement(x, FOWARD(y, 2, team), team);
+				if (SetBoardMovement(x, FOWARD(y, 2, team), team))
+					rs = 1;
 		}
 		
 		for (int i = 0; i < 2; i++) {
 			int ty = FOWARD(y, 1, team), tx = FOWARD(x, 1, i);
 			if (Board[ty][tx].cp != NULL && IsRightPos(tx)) {
-				SetBoardMovement(tx, ty, team);
+				if (SetBoardMovement(tx, ty, team))
+					rs = 1;
 			}
 		}
 
 		break;
 	}
 
-	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
-		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-			if (Board[iy][ix].bCanMove[team]) {
-				return 0;
-			}
-		}
-	}
-
-	return 1;
+	return rs;
 }
 
 void CancelMoveMode() {
-	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
-		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-			Board[iy][ix].bCanMove[0] = FALSE;
-			Board[iy][ix].bCanMove[1] = FALSE;
-		}
-	}
+	AllClearMovement();
+
 	prevX = -1; prevY = -1;
 	bMoveMode = FALSE;
 }
 
-int IsCheck() {
-	int rs = -1;
+int IsCheck(int team) {
+	int rs = 0;
+
+	AllClearMovement();
 
 	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
 		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-			Board[iy][ix].bCanMove[0] = FALSE;
-			Board[iy][ix].bCanMove[1] = FALSE;
+			if (GetTeam(ix, iy) != team)
+				if (SetChessPieceMovement(ix, iy, GetType(ix, iy), GetTeam(ix, iy)))
+					rs = 1;
 		}
 	}
 
-	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
-		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-			SetChessPieceMovement(ix, iy, GetType(ix, iy), GetTeam(ix, iy));
-		}
-	}
-
-	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
-		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-			if (GetType(ix, iy) == 0 && Board[iy][ix].bCanMove[!GetTeam(ix, iy)] == TRUE)
-				rs = GetTeam(ix, iy);
-		}
-	}
-
-	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
-		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-			Board[iy][ix].bCanMove[0] = FALSE;
-			Board[iy][ix].bCanMove[1] = FALSE;
-		}
-	}
+	AllClearMovement();
 
 	return rs;
 }
@@ -366,4 +347,13 @@ int MoveChessPiece(int dx, int dy, int fx, int fy,ChessPiece * CPreturn) {
 	DeleteChessPiece(fx, fy);
 
 	return 1;
+}
+
+void AllClearMovement() {
+	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
+		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
+			Board[iy][ix].bCanMove[0] = FALSE;
+			Board[iy][ix].bCanMove[1] = FALSE;
+		}
+	}
 }
