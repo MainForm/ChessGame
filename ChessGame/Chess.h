@@ -45,10 +45,29 @@ void CancelMoveMode();
 
 //sx and sy are start point of chess board and x and y are clicked point
 void ChessBoardMessage(int sx, int sy, int x, int y);
+/*
+Flow of ChessBoardMessage
+1. Check whether move mode is true or false.
+if move mode is false.
+	2. Save the selected point and chess piece.
+	3. Delete the selected chess piece.
+	4. Check that king of selected chess piece team is check.
+	if that king is check
+		5. restore selected chess piece and exit this function
+	5. Identify the way that selected chess piece can go.
+	when Identify the way.
+	you need to check the way that chess piece can go.
+	for example,block is blank or other team chess piece is exist.
+
+
+*/
+
 //return the chess piece that was had by destination block.
 int MoveChessPiece(int dx, int dy, int fx, int fy, ChessPiece* CPreturn);
 
 int IsCheck(int team);
 void AllClearMovement();
+
+
 
 #endif
