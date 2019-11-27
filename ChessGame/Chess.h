@@ -71,13 +71,13 @@ void AllClearMovement();
 
 int IdentifyMovement(int x,int y,ChessPiece * cp);
 
-void MovementOfKing(ChessPiece* cp);
-void MovementOfRook(ChessPiece* cp);
-void MovementOfBishop(ChessPiece* cp);
-void MovementOfKnight(ChessPiece* cp);
-void MovementOfPawn(ChessPiece * cp);
+void MovementOfKing(ChessPiece* cp,int (*ptFunc)(int,int,ChessPiece *));
+void MovementOfRook(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*));
+void MovementOfBishop(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*));
+void MovementOfKnight(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*));
+void MovementOfPawn(ChessPiece * cp, int (*ptFunc)(int, int, ChessPiece*));
 
-
-
+bool IsCheck(int team);
+int IdentifyCheck(int x, int y, ChessPiece* cp);
 
 #endif

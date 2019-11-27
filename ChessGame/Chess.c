@@ -10,10 +10,11 @@
 extern HINSTANCE g_hInst;
 extern HWND hMain;
 
-ChessBlock Board[8][8] = { 0, };
+ChessBlock Board[MAP_BLOCKCOUNT][MAP_BLOCKCOUNT] = { 0, };
 HBITMAP ChessPieceBitmap[2][8];
 ChessPiece* SelectedCP = NULL;
 bool bMoveMode = false;
+bool TmpMovement[MAP_BLOCKCOUNT][MAP_BLOCKCOUNT] = { 0, };
 
 void InitiateChessGame() {
 	int procedure[8] = { 2, 4, 3, 1, 0, 3, 4, 2 };
@@ -155,30 +156,34 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 
 	if (bMoveMode == false) {
 		AllClearMovement();
+
 		if (Board[by][bx].cp == NULL)
+			return;
+
+		if (IsCheck(GetTeam(bx, by)))
 			return;
 
 		SelectedCP = Board[by][bx].cp;
 
 		switch (SelectedCP->type) {
 		case 0:
-			MovementOfKing(SelectedCP);
+			MovementOfKing(SelectedCP,IdentifyMovement);
 			break;
 		case 1:
-			MovementOfRook(SelectedCP);
-			MovementOfBishop(SelectedCP);
+			MovementOfRook(SelectedCP, IdentifyMovement);
+			MovementOfBishop(SelectedCP, IdentifyMovement);
 			break;
 		case 2:
-			MovementOfRook(SelectedCP);
+			MovementOfRook(SelectedCP, IdentifyMovement);
 			break;
 		case 3:
-			MovementOfBishop(SelectedCP);
+			MovementOfBishop(SelectedCP, IdentifyMovement);
 			break;
 		case 4:
-			MovementOfKnight(SelectedCP);
+			MovementOfKnight(SelectedCP, IdentifyMovement);
 			break;
 		case 5:
-			MovementOfPawn(SelectedCP);
+			MovementOfPawn(SelectedCP, IdentifyMovement);
 			break;
 		}
 
@@ -209,8 +214,14 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 			return;
 		
 		MoveChessPiece(bx, by, pt.x, pt.y, NULL);
-		bMoveMode = false;
+
+		if (IsCheck(!GetTeam(bx,by))) {
+			MessageBox(hMain, TEXT("Test"), TEXT("Test"), MB_OK);
+		}
+
+
 		SelectedCP = NULL;
+		bMoveMode = false;
 	}
 }
 
@@ -238,7 +249,7 @@ void AllClearMovement() {
 	}
 }
 
-void MovementOfKing(ChessPiece* cp) {
+void MovementOfKing(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
 	Point pt;
 
 	if (!GetChessPiecePoint(cp, &pt))
@@ -248,12 +259,12 @@ void MovementOfKing(ChessPiece* cp) {
 		for (int ix = pt.x - 1; ix < pt.x + 2; ix++) {
 			if (ix == pt.x && iy == pt.y)
 				continue;
-			IdentifyMovement(ix, iy, cp);
+			ptFunc(ix, iy, cp);
 		}
 	}
 }
 
-void MovementOfRook(ChessPiece* cp) {
+void MovementOfRook(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
 	Point pt;
 
 	int ways[4][2] = {
@@ -270,7 +281,7 @@ void MovementOfRook(ChessPiece* cp) {
 		ptTmp.x += ways[i][0];
 		ptTmp.y += ways[i][1];
 
-		while (IdentifyMovement(ptTmp.x, ptTmp.y, cp)) {
+		while (ptFunc(ptTmp.x, ptTmp.y, cp)) {
 			if (Board[ptTmp.y][ptTmp.x].cp != NULL)
 				break;
 			ptTmp.x += ways[i][0];
@@ -280,7 +291,7 @@ void MovementOfRook(ChessPiece* cp) {
 
 }
 
-void MovementOfBishop(ChessPiece* cp) {
+void MovementOfBishop(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
 	Point pt;
 
 	int ways[4][2] = {
@@ -297,7 +308,7 @@ void MovementOfBishop(ChessPiece* cp) {
 		ptTmp.x += ways[i][0];
 		ptTmp.y += ways[i][1];
 
-		while (IdentifyMovement(ptTmp.x, ptTmp.y, cp)) {
+		while (ptFunc(ptTmp.x, ptTmp.y, cp)) {
 			if (Board[ptTmp.y][ptTmp.x].cp != NULL)
 				break;
 			ptTmp.x += ways[i][0];
@@ -307,7 +318,7 @@ void MovementOfBishop(ChessPiece* cp) {
 
 }
 
-void MovementOfKnight(ChessPiece* cp) {
+void MovementOfKnight(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
 	Point pt;
 	int ways[8][2] = {
 	{2,1},{-2,1},{2,-1},{-2,-1},
@@ -318,23 +329,23 @@ void MovementOfKnight(ChessPiece* cp) {
 		return;
 
 	for (int i = 0; i < 8; i++) {
-		IdentifyMovement(pt.x + ways[i][0], pt.y + ways[i][1], cp);
+		ptFunc(pt.x + ways[i][0], pt.y + ways[i][1], cp);
 	}
 }
 
-void MovementOfPawn(ChessPiece* cp) {
+void MovementOfPawn(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
 	Point pt;
 
 	if (!GetChessPiecePoint(cp, &pt))
 		return;
 
-	IdentifyMovement(pt.x, FOWARD(pt.y, 1, cp->team), cp);
+	ptFunc(pt.x, FOWARD(pt.y, 1, cp->team), cp);
 	if(pt.y == 1 || pt.y == 6)
-		IdentifyMovement(pt.x, FOWARD(pt.y, 2, cp->team), cp);
+		ptFunc(pt.x, FOWARD(pt.y, 2, cp->team), cp);
 
 	for (int i = 0; i < 2; i++) {
 		if (Board[FOWARD(pt.y,1,cp->team)][FOWARD(pt.x, 1, i)].cp != NULL) {
-			IdentifyMovement(FOWARD(pt.x, 1, i), FOWARD(pt.y, 1, cp->team), cp);
+			ptFunc(FOWARD(pt.x, 1, i), FOWARD(pt.y, 1, cp->team), cp);
 		}
 	}
 }
@@ -350,4 +361,62 @@ int IdentifyMovement(int x, int y, ChessPiece* cp) {
 	Board[y][x].bCanMove[cp->team] = true;
 
 	return 1;
+}
+
+int IdentifyCheck(int x, int y, ChessPiece* cp) {
+	if (!IsRightPos(x) || !IsRightPos(y))
+		return 0;
+
+	if (Board[y][x].cp != NULL && Board[y][x].cp->team == cp->team)
+		return 0;
+
+
+	TmpMovement[y][x] = true;
+
+	return 1;
+}
+
+bool IsCheck(int team) {
+	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
+		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
+			TmpMovement[iy][ix] = false;
+		}
+	}
+
+	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
+		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
+			if (Board[iy][ix].cp != NULL && GetTeam(ix, iy) != team) {
+				switch (GetType(ix, iy)) {
+				case 0:
+					MovementOfKing(Board[iy][ix].cp, IdentifyCheck);
+					break;
+				case 1:
+					MovementOfRook(Board[iy][ix].cp, IdentifyCheck);
+					MovementOfBishop(Board[iy][ix].cp, IdentifyCheck);
+					break;
+				case 2:
+					MovementOfRook(Board[iy][ix].cp, IdentifyCheck);
+					break;
+				case 3:
+					MovementOfBishop(Board[iy][ix].cp, IdentifyCheck);
+					break;
+				case 4:
+					MovementOfKnight(Board[iy][ix].cp, IdentifyCheck);
+					break;
+				case 5:
+					MovementOfPawn(Board[iy][ix].cp, IdentifyCheck);
+					break;
+				}
+			}
+		}
+	}
+
+	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
+		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
+			if (TmpMovement[iy][ix] && Board[iy][ix].cp != NULL && GetType(ix, iy) == 0 && GetTeam(ix, iy) == team)
+				return 1;
+		}
+	}
+
+	return 0;
 }
