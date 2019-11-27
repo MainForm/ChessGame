@@ -12,7 +12,7 @@ extern HWND hMain;
 
 ChessBlock Board[MAP_BLOCKCOUNT][MAP_BLOCKCOUNT] = { 0, };
 HBITMAP ChessPieceBitmap[2][8];
-ChessPiece* SelectedCP = NULL;
+Point SelectedPoint = { 0, };
 bool bMoveMode = false;
 bool TmpMovement[MAP_BLOCKCOUNT][MAP_BLOCKCOUNT] = { 0, };
 
@@ -112,7 +112,6 @@ void PaintChessPiece(HDC hdc,int sx,int sy) {
 void PaintChessBoard(HDC hdc, int sx, int sy) {
 	HBRUSH hMapBs[3], hOldBrush;
 	int bMap = 0;
-	Point pt;
 
 	hMapBs[0] = CreateSolidBrush(RGB(200, 200, 200));
 	hMapBs[1] = CreateSolidBrush(RGB(255, 255, 255));
@@ -120,17 +119,13 @@ void PaintChessBoard(HDC hdc, int sx, int sy) {
 
 	hOldBrush = (HBRUSH)SelectObject(hdc, hMapBs[0]);	//Get original brush
 
-	if (bMoveMode) {
-		GetChessPiecePoint(SelectedCP, &pt);
-	}
-
 	for (int iy = sy; iy < sy + (MAP_SIZE * 8); iy += MAP_SIZE) {
 		for (int ix = sx; ix < sx + (MAP_SIZE * 8); ix += MAP_SIZE) {
 			int tx = (ix - sx) / MAP_SIZE, ty = (iy - sy) / MAP_SIZE;
 
 			bMap = !bMap;
 
-			if (bMoveMode && Board[ty][tx].bCanMove[SelectedCP->team])
+			if (bMoveMode && Board[ty][tx].bCanMove[GetTeam(SelectedPoint.x,SelectedPoint.y)])
 				SelectObject(hdc, hMapBs[2]);
 			else
 				SelectObject(hdc, hMapBs[bMap]);
@@ -160,36 +155,34 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 		if (Board[by][bx].cp == NULL)
 			return;
 
-		if (IsCheck(GetTeam(bx, by)))
-			return;
+		SelectedPoint.x = bx;
+		SelectedPoint.y = by;
 
-		SelectedCP = Board[by][bx].cp;
-
-		switch (SelectedCP->type) {
+		switch (GetType(SelectedPoint.x,SelectedPoint.y)) {
 		case 0:
-			MovementOfKing(SelectedCP,IdentifyMovement);
+			MovementOfKing(Board[by][bx].cp,IdentifyMovement);
 			break;
 		case 1:
-			MovementOfRook(SelectedCP, IdentifyMovement);
-			MovementOfBishop(SelectedCP, IdentifyMovement);
+			MovementOfRook(Board[by][bx].cp, IdentifyMovement);
+			MovementOfBishop(Board[by][bx].cp, IdentifyMovement);
 			break;
 		case 2:
-			MovementOfRook(SelectedCP, IdentifyMovement);
+			MovementOfRook(Board[by][bx].cp, IdentifyMovement);
 			break;
 		case 3:
-			MovementOfBishop(SelectedCP, IdentifyMovement);
+			MovementOfBishop(Board[by][bx].cp, IdentifyMovement);
 			break;
 		case 4:
-			MovementOfKnight(SelectedCP, IdentifyMovement);
+			MovementOfKnight(Board[by][bx].cp, IdentifyMovement);
 			break;
 		case 5:
-			MovementOfPawn(SelectedCP, IdentifyMovement);
+			MovementOfPawn(Board[by][bx].cp, IdentifyMovement);
 			break;
 		}
 
 		for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
 			for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-				if (Board[iy][ix].bCanMove[SelectedCP->team] == true) {
+				if (Board[iy][ix].bCanMove[GetTeam(bx,by)] == true) {
 					bMoveMode = true;
 					return;
 				}
@@ -197,30 +190,21 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 		}
 	}
 	else {
-		Point pt;
-
-		//Get Point of Selected chess piece.
-		if (!GetChessPiecePoint(SelectedCP, &pt)) 
-			return;
-
 		//Select same point.
-		if (pt.x == bx && pt.y == by) {
-			SelectedCP = NULL;
+		if (SelectedPoint.x == bx && SelectedPoint.y == by) {
 			bMoveMode = false;
 			return;
 		}
 
-		if (Board[by][bx].bCanMove[SelectedCP->team] == 0)
+		if (Board[by][bx].bCanMove[GetTeam(SelectedPoint.x,SelectedPoint.y)] == 0)
 			return;
 		
-		MoveChessPiece(bx, by, pt.x, pt.y, NULL);
+		MoveChessPiece(bx, by, SelectedPoint.x, SelectedPoint.y, NULL);
 
 		if (IsCheck(!GetTeam(bx,by))) {
 			MessageBox(hMain, TEXT("Test"), TEXT("Test"), MB_OK);
 		}
 
-
-		SelectedCP = NULL;
 		bMoveMode = false;
 	}
 }
@@ -351,6 +335,7 @@ void MovementOfPawn(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
 }
 
 int IdentifyMovement(int x, int y, ChessPiece* cp) {
+
 	if (!IsRightPos(x) || !IsRightPos(y))
 		return 0;
 
@@ -359,6 +344,8 @@ int IdentifyMovement(int x, int y, ChessPiece* cp) {
 
 
 	Board[y][x].bCanMove[cp->team] = true;
+
+
 
 	return 1;
 }
