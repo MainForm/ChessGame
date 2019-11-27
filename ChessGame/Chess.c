@@ -160,23 +160,23 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 
 		switch (GetType(SelectedPoint.x,SelectedPoint.y)) {
 		case 0:
-			MovementOfKing(Board[by][bx].cp,IdentifyMovement);
+			MovementOfKing(SelectedPoint,IdentifyMovement);
 			break;
 		case 1:
-			MovementOfRook(Board[by][bx].cp, IdentifyMovement);
-			MovementOfBishop(Board[by][bx].cp, IdentifyMovement);
+			MovementOfRook(SelectedPoint, IdentifyMovement);
+			MovementOfBishop(SelectedPoint, IdentifyMovement);
 			break;
 		case 2:
-			MovementOfRook(Board[by][bx].cp, IdentifyMovement);
+			MovementOfRook(SelectedPoint, IdentifyMovement);
 			break;
 		case 3:
-			MovementOfBishop(Board[by][bx].cp, IdentifyMovement);
+			MovementOfBishop(SelectedPoint, IdentifyMovement);
 			break;
 		case 4:
-			MovementOfKnight(Board[by][bx].cp, IdentifyMovement);
+			MovementOfKnight(SelectedPoint, IdentifyMovement);
 			break;
 		case 5:
-			MovementOfPawn(Board[by][bx].cp, IdentifyMovement);
+			MovementOfPawn(SelectedPoint, IdentifyMovement);
 			break;
 		}
 
@@ -233,39 +233,29 @@ void AllClearMovement() {
 	}
 }
 
-void MovementOfKing(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
-	Point pt;
-
-	if (!GetChessPiecePoint(cp, &pt))
-		return;
+void MovementOfKing(Point pt, IdentifyFunc ptFunc) {
 
 	for (int iy = pt.y - 1; iy < pt.y + 2; iy++) {
 		for (int ix = pt.x - 1; ix < pt.x + 2; ix++) {
 			if (ix == pt.x && iy == pt.y)
 				continue;
-			ptFunc(ix, iy, cp);
+			ptFunc(ix, iy, pt);
 		}
 	}
 }
 
-void MovementOfRook(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
-	Point pt;
-
+void MovementOfRook(Point pt, IdentifyFunc ptFunc) {
 	int ways[4][2] = {
 		{1,0},{-1,0},{0,-1},{0,1}
 	};
 
-
-	if (!GetChessPiecePoint(cp, &pt))
-		return;
-
 	for (int i = 0; i < 4; i++) {
 		Point ptTmp = { pt.x,pt.y };
 
 		ptTmp.x += ways[i][0];
 		ptTmp.y += ways[i][1];
 
-		while (ptFunc(ptTmp.x, ptTmp.y, cp)) {
+		while (ptFunc(ptTmp.x, ptTmp.y, pt)) {
 			if (Board[ptTmp.y][ptTmp.x].cp != NULL)
 				break;
 			ptTmp.x += ways[i][0];
@@ -275,24 +265,18 @@ void MovementOfRook(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
 
 }
 
-void MovementOfBishop(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
-	Point pt;
-
+void MovementOfBishop(Point pt, IdentifyFunc ptFunc) {
 	int ways[4][2] = {
 		{1,1},{-1,1},{1,-1},{-1,-1}
 	};
 
-
-	if (!GetChessPiecePoint(cp, &pt))
-		return;
-
 	for (int i = 0; i < 4; i++) {
 		Point ptTmp = { pt.x,pt.y };
 
 		ptTmp.x += ways[i][0];
 		ptTmp.y += ways[i][1];
 
-		while (ptFunc(ptTmp.x, ptTmp.y, cp)) {
+		while (ptFunc(ptTmp.x, ptTmp.y, pt)) {
 			if (Board[ptTmp.y][ptTmp.x].cp != NULL)
 				break;
 			ptTmp.x += ways[i][0];
@@ -302,59 +286,65 @@ void MovementOfBishop(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
 
 }
 
-void MovementOfKnight(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
-	Point pt;
+void MovementOfKnight(Point pt, IdentifyFunc ptFunc) {
 	int ways[8][2] = {
 	{2,1},{-2,1},{2,-1},{-2,-1},
 	{1,2},{-1,2},{1,-2},{-1,-2}
 	};
 
-	if (!GetChessPiecePoint(cp, &pt))
-		return;
-
 	for (int i = 0; i < 8; i++) {
-		ptFunc(pt.x + ways[i][0], pt.y + ways[i][1], cp);
+		ptFunc(pt.x + ways[i][0], pt.y + ways[i][1], pt);
 	}
 }
 
-void MovementOfPawn(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*)) {
-	Point pt;
+void MovementOfPawn(Point pt, IdentifyFunc ptFunc) {
+	int team = GetTeam(pt.x, pt.y);
 
-	if (!GetChessPiecePoint(cp, &pt))
-		return;
-
-	ptFunc(pt.x, FOWARD(pt.y, 1, cp->team), cp);
+	ptFunc(pt.x, FOWARD(pt.y, 1, team), pt);
 	if(pt.y == 1 || pt.y == 6)
-		ptFunc(pt.x, FOWARD(pt.y, 2, cp->team), cp);
+		ptFunc(pt.x, FOWARD(pt.y, 2, team), pt);
 
 	for (int i = 0; i < 2; i++) {
-		if (Board[FOWARD(pt.y,1,cp->team)][FOWARD(pt.x, 1, i)].cp != NULL) {
-			ptFunc(FOWARD(pt.x, 1, i), FOWARD(pt.y, 1, cp->team), cp);
+		if (Board[FOWARD(pt.y,1,team)][FOWARD(pt.x, 1, i)].cp != NULL) {
+			ptFunc(FOWARD(pt.x, 1, i), FOWARD(pt.y, 1, team), pt);
 		}
 	}
 }
 
-int IdentifyMovement(int x, int y, ChessPiece* cp) {
+int IdentifyMovement(int x, int y, Point pt) {
+	ChessPiece CPtmp = { -1,-1 };
 
 	if (!IsRightPos(x) || !IsRightPos(y))
 		return 0;
 
-	if (Board[y][x].cp != NULL && Board[y][x].cp->team == cp->team)
+	if (Board[y][x].cp != NULL && Board[y][x].cp->team == GetTeam(pt.x,pt.y))
 		return 0;
 
+	
+	MoveChessPiece(x, y, pt.x, pt.y, &CPtmp);
 
-	Board[y][x].bCanMove[cp->team] = true;
+	if (IsCheck(GetTeam(x, y))) {
+		MoveChessPiece(pt.x, pt.y, x, y, &CPtmp);
+		if (CPtmp.team != -1 || CPtmp.type != -1)
+			AddChessPiece(x, y, CPtmp.type, CPtmp.team);
+		return 0;
+	}
 
+	MoveChessPiece(pt.x, pt.y, x, y, &CPtmp);
+	Board[y][x].bCanMove[GetTeam(pt.x, pt.y)] = true;
+	
+	if (CPtmp.team != -1 || CPtmp.type != -1)
+		AddChessPiece(x, y, CPtmp.type, CPtmp.team);
 
-
+	
 	return 1;
 }
 
-int IdentifyCheck(int x, int y, ChessPiece* cp) {
+int IdentifyCheck(int x, int y, Point pt) {
 	if (!IsRightPos(x) || !IsRightPos(y))
 		return 0;
 
-	if (Board[y][x].cp != NULL && Board[y][x].cp->team == cp->team)
+	if (Board[y][x].cp != NULL && Board[y][x].cp->team == GetTeam(pt.x, pt.y))
 		return 0;
 
 
@@ -364,34 +354,39 @@ int IdentifyCheck(int x, int y, ChessPiece* cp) {
 }
 
 bool IsCheck(int team) {
+	Point pt = { 0, };
+
+	if (team == -1)
+		return false;
+
 	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
 		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
 			TmpMovement[iy][ix] = false;
 		}
 	}
 
-	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
-		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-			if (Board[iy][ix].cp != NULL && GetTeam(ix, iy) != team) {
-				switch (GetType(ix, iy)) {
+	for (pt.y = 0; pt.y < MAP_BLOCKCOUNT; pt.y++) {
+		for (pt.x = 0; pt.x < MAP_BLOCKCOUNT; pt.x++) {
+			if (Board[pt.y][pt.x].cp != NULL && GetTeam(pt.x, pt.y) != team) {
+				switch (GetType(pt.x, pt.y)) {
 				case 0:
-					MovementOfKing(Board[iy][ix].cp, IdentifyCheck);
+					MovementOfKing(pt, IdentifyCheck);
 					break;
 				case 1:
-					MovementOfRook(Board[iy][ix].cp, IdentifyCheck);
-					MovementOfBishop(Board[iy][ix].cp, IdentifyCheck);
+					MovementOfRook(pt, IdentifyCheck);
+					MovementOfBishop(pt, IdentifyCheck);
 					break;
 				case 2:
-					MovementOfRook(Board[iy][ix].cp, IdentifyCheck);
+					MovementOfRook(pt, IdentifyCheck);
 					break;
 				case 3:
-					MovementOfBishop(Board[iy][ix].cp, IdentifyCheck);
+					MovementOfBishop(pt, IdentifyCheck);
 					break;
 				case 4:
-					MovementOfKnight(Board[iy][ix].cp, IdentifyCheck);
+					MovementOfKnight(pt, IdentifyCheck);
 					break;
 				case 5:
-					MovementOfPawn(Board[iy][ix].cp, IdentifyCheck);
+					MovementOfPawn(pt, IdentifyCheck);
 					break;
 				}
 			}

@@ -12,6 +12,8 @@ typedef struct _Point {
 	int y;
 }Point;
 
+typedef int (*IdentifyFunc)(int, int, Point);
+
 typedef struct _ChessPiece {
 	int type;
 	int team;
@@ -69,15 +71,15 @@ int MoveChessPiece(int dx, int dy, int fx, int fy, ChessPiece* CPreturn);
 
 void AllClearMovement();
 
-int IdentifyMovement(int x,int y,ChessPiece * cp);
+int IdentifyMovement(int x, int y, Point pt);
 
-void MovementOfKing(ChessPiece* cp,int (*ptFunc)(int,int,ChessPiece *));
-void MovementOfRook(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*));
-void MovementOfBishop(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*));
-void MovementOfKnight(ChessPiece* cp, int (*ptFunc)(int, int, ChessPiece*));
-void MovementOfPawn(ChessPiece * cp, int (*ptFunc)(int, int, ChessPiece*));
+void MovementOfKing(Point pt,IdentifyFunc ptFunc);
+void MovementOfRook(Point pt, IdentifyFunc ptFunc);
+void MovementOfBishop(Point pt, IdentifyFunc ptFunc);
+void MovementOfKnight(Point pt, IdentifyFunc ptFunc);
+void MovementOfPawn(Point pt, IdentifyFunc ptFunc);
 
 bool IsCheck(int team);
-int IdentifyCheck(int x, int y, ChessPiece* cp);
+int IdentifyCheck(int x, int y, Point pt);
 
 #endif
