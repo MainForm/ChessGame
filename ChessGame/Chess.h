@@ -82,4 +82,6 @@ void MovementOfPawn(Point pt, IdentifyFunc ptFunc);
 bool IsCheck(int team);
 int IdentifyCheck(int x, int y, Point pt);
 
+int GetTurn();
+
 #endif

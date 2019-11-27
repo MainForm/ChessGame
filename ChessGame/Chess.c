@@ -15,6 +15,7 @@ HBITMAP ChessPieceBitmap[2][8];
 Point SelectedPoint = { 0, };
 bool bMoveMode = false;
 bool TmpMovement[MAP_BLOCKCOUNT][MAP_BLOCKCOUNT] = { 0, };
+int turn = 0;
 
 void InitiateChessGame() {
 	int procedure[8] = { 2, 4, 3, 1, 0, 3, 4, 2 };
@@ -155,6 +156,10 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 		if (Board[by][bx].cp == NULL)
 			return;
 
+
+		if (turn != GetTeam(bx, by))
+			return;
+
 		SelectedPoint.x = bx;
 		SelectedPoint.y = by;
 
@@ -205,6 +210,7 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 			MessageBox(hMain, TEXT("Test"), TEXT("Test"), MB_OK);
 		}
 
+		turn = !turn;
 		bMoveMode = false;
 	}
 }
@@ -299,10 +305,14 @@ void MovementOfKnight(Point pt, IdentifyFunc ptFunc) {
 
 void MovementOfPawn(Point pt, IdentifyFunc ptFunc) {
 	int team = GetTeam(pt.x, pt.y);
+	
+	if (Board[FOWARD(pt.y, 1, team)][pt.x].cp == NULL) {
+		ptFunc(pt.x, FOWARD(pt.y, 1, team), pt);
 
-	ptFunc(pt.x, FOWARD(pt.y, 1, team), pt);
-	if(pt.y == 1 || pt.y == 6)
-		ptFunc(pt.x, FOWARD(pt.y, 2, team), pt);
+
+		if ((pt.y == 1 || pt.y == 6) && Board[FOWARD(pt.y, 2, team)][pt.x].cp == NULL)
+			ptFunc(pt.x, FOWARD(pt.y, 2, team), pt);
+	}
 
 	for (int i = 0; i < 2; i++) {
 		if (Board[FOWARD(pt.y,1,team)][FOWARD(pt.x, 1, i)].cp != NULL) {
@@ -336,7 +346,6 @@ int IdentifyMovement(int x, int y, Point pt) {
 	if (CPtmp.team != -1 || CPtmp.type != -1)
 		AddChessPiece(x, y, CPtmp.type, CPtmp.team);
 
-	
 	return 1;
 }
 
@@ -401,4 +410,8 @@ bool IsCheck(int team) {
 	}
 
 	return 0;
+}
+
+int GetTurn() {
+	return turn;
 }

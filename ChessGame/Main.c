@@ -46,8 +46,17 @@ int bx, by;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	int bMap = 0;
 	PAINTSTRUCT ps;
+	LPMINMAXINFO pmmi;
+	POINT WindowSizePoint = { 650, 460 };
+	WCHAR strTurn[50];
 
 	switch (iMessage) {
+	case WM_GETMINMAXINFO:
+		pmmi = (LPMINMAXINFO)lParam;
+		pmmi->ptMaxTrackSize = WindowSizePoint;
+		pmmi->ptMinTrackSize = WindowSizePoint;
+		pmmi->ptMaxSize = WindowSizePoint;
+		return 0;
 	case WM_CREATE:
 		hMain = hWnd;
 		bx = 10; by = 10; //Setting the Board Position
@@ -62,12 +71,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		InvalidateRect(hWnd, NULL, 0);
 		break;
 	case WM_PAINT:
-
 		BeginPaint(hWnd, &ps);
 
 		PaintChessBoard(ps.hdc, bx, by);
 		PaintChessPiece(ps.hdc, bx, by);
 
+		if (GetTurn()) 
+			wsprintf(strTurn, TEXT("백의 턴"));
+		else 
+			wsprintf(strTurn, TEXT("흑의 턴"));
+
+		TextOut(ps.hdc, 430, 10, strTurn, wcslen(strTurn));
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_CLOSE:
