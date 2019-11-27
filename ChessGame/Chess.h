@@ -2,10 +2,15 @@
 #define __CHESS_HEADER__
 
 #include <Windows.h>
+#include <stdbool.h>
 
 #define MAP_SIZE 50
 #define MAP_BLOCKCOUNT 8
 
+typedef struct _Point {
+	int x;
+	int y;
+}Point;
 
 typedef struct _ChessPiece {
 	int type;
@@ -27,7 +32,7 @@ else{
 }
 */
 typedef struct _ChessBlock {
-	int bCanMove[2];
+	bool bCanMove[2];
 	ChessPiece* cp;
 } ChessBlock;
 
@@ -36,12 +41,11 @@ void DeleteChessGame();
 
 void AddChessPiece(int x,int y,int type, int team);
 void DeleteChessPiece(int x, int y);
-void PaintChessPiece(HDC hdc, int sx, int sy);
-int SetChessPieceMovement(int x, int y, int type, int team);
-int SetBoardMovement(int x, int y, int team);
 
+int GetChessPiecePoint(ChessPiece* cp, Point* pt);
+
+void PaintChessPiece(HDC hdc, int sx, int sy);
 void PaintChessBoard(HDC hdc, int sx, int sy);
-void CancelMoveMode();
 
 //sx and sy are start point of chess board and x and y are clicked point
 void ChessBoardMessage(int sx, int sy, int x, int y);
@@ -50,23 +54,29 @@ Flow of ChessBoardMessage
 1. Check whether move mode is true or false.
 if move mode is false.
 	2. Save the selected point and chess piece.
-	3. Delete the selected chess piece.
-	4. Check that king of selected chess piece team is check.
+	3. Check that king of selected chess piece team is check.
 	if that king is check
-		5. restore selected chess piece and exit this function
-	5. Identify the way that selected chess piece can go.
-	when Identify the way.
+		4. exit this function
+	3. Delete the selected chess piece.
+	4. Identify the way that selected chess piece can go.
+	when you Identify the way.
 	you need to check the way that chess piece can go.
 	for example,block is blank or other team chess piece is exist.
-
-
 */
 
 //return the chess piece that was had by destination block.
 int MoveChessPiece(int dx, int dy, int fx, int fy, ChessPiece* CPreturn);
 
-int IsCheck(int team);
 void AllClearMovement();
+
+int IdentifyMovement(int x,int y,ChessPiece * cp);
+
+void MovementOfKing(ChessPiece* cp);
+void MovementOfRook(ChessPiece* cp);
+void MovementOfBishop(ChessPiece* cp);
+void MovementOfKnight(ChessPiece* cp);
+void MovementOfPawn(ChessPiece * cp);
+
 
 
 
