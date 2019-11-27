@@ -207,7 +207,7 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 		MoveChessPiece(bx, by, SelectedPoint.x, SelectedPoint.y, NULL);
 
 		if (IsCheck(!GetTeam(bx,by))) {
-			MessageBox(hMain, TEXT("Test"), TEXT("Test"), MB_OK);
+			MessageBox(hMain, TEXT("Check!!"), TEXT("emergency"), MB_OK);
 		}
 
 		turn = !turn;
