@@ -4,8 +4,15 @@
 #include <Windows.h>		//WindowAPI 헤더 선언 
 #include <stdbool.h>		//bool 타입 쓰기 위해서 선언
 
-#define MAP_SIZE 50			// 체스의 한 블럭을 윈도우 50 pixel에 맞춤
-#define MAP_BLOCKCOUNT 8	//  각 판에 해당하는 x, y의 최대 사이즈를 8로 지정함
+#define MAP_SIZE		50			// 체스의 한 블럭을 윈도우 50 pixel에 맞춤
+#define MAP_BLOCKCOUNT	8	//  각 판에 해당하는 x, y의 최대 사이즈를 8로 지정함
+
+#define CHESS_KING		0
+#define CHESS_QUEEN		1
+#define CHESS_ROOK		2
+#define CHESS_BISHOP	3
+#define CHESS_KNIGHT	4
+#define CHESS_PAWN		5
 
 typedef struct _Point {		// 우리가 선택한 기물의 위치를 기억하는 구조체
 	int x;					// 각각 x 좌표, y 좌표로 기억함
