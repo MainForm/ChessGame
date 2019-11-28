@@ -34,6 +34,8 @@ void InitiateChessGame() {
 		}
 	}
 	
+	turn = 1;
+
 	//setting board to start game
 	for (int i = 0; i < 8; i++) {
 		AddChessPiece(i, 0, procedure[i], 0);
@@ -238,7 +240,14 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 		}
 
 		if (IsCheckMate(!GetTeam(bx, by))) {
+			InvalidateRect(hMain, NULL, 0);
 			MessageBox(hMain, TEXT("CheckMate!!"), TEXT("GameOver"), MB_OK);
+			if (MessageBox(hMain, TEXT("Do you want to replay game?"), TEXT("Choice"), MB_YESNO) == IDYES) {
+				InitiateChessGame();
+			}
+			else {
+				DestroyWindow(hMain);
+			}
 			turn = !turn;
 			bMoveMode = false;
 			return;

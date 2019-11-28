@@ -105,19 +105,19 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 		case IDC_BTN_QUEEN:
-			EndDialog(hDlg, 1);
+			EndDialog(hDlg, CHESS_QUEEN);
 			return TRUE;
 		case IDC_BTN_ROOK:
-			EndDialog(hDlg, 2);
+			EndDialog(hDlg, CHESS_ROOK);
 			return TRUE;
 		case IDC_BTN_BISHOP:
-			EndDialog(hDlg,3);
+			EndDialog(hDlg, CHESS_BISHOP);
 			return TRUE;
 		case IDC_BTN_KNIGHT:
-			EndDialog(hDlg, 4);
+			EndDialog(hDlg, CHESS_KNIGHT);
 			return TRUE;
 		case IDCANCEL:
-			EndDialog(hDlg, -1);
+			EndDialog(hDlg, CHESS_QUEEN);
 			return TRUE;
 		}
 
