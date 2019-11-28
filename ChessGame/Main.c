@@ -4,6 +4,7 @@
 #include "Chess.h"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+BOOL CALLBACK DlgProc(HWND , UINT , WPARAM , LPARAM);
 HINSTANCE g_hInst;
 LPCTSTR lpszClass = TEXT("ChessGame");
 
@@ -60,6 +61,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		hMain = hWnd;
 		bx = 10; by = 10; //Setting the Board Position(체스판의 초기 위치)
 		InitiateChessGame();// 처음 시작했을 때 기물의 위치와 기물의 이미지 파일을 가져오는 함수
+
 		break;
 	case WM_LBUTTONDOWN:	// 마우스 왼쪽 클릭하였을 때 발생하는 함수
 
@@ -96,4 +98,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	}
 
 	return (DefWindowProc(hWnd, iMessage, wParam, lParam));
+}
+
+BOOL CALLBACK DlgProc(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	switch (iMessage) {
+	case WM_COMMAND:
+		switch (LOWORD(wParam)) {
+		case IDC_BTN_QUEEN:
+			EndDialog(hDlg, 1);
+			return TRUE;
+		case IDC_BTN_ROOK:
+			EndDialog(hDlg, 2);
+			return TRUE;
+		case IDC_BTN_BISHOP:
+			EndDialog(hDlg,3);
+			return TRUE;
+		case IDC_BTN_KNIGHT:
+			EndDialog(hDlg, 4);
+			return TRUE;
+		case IDCANCEL:
+			EndDialog(hDlg, -1);
+			return TRUE;
+		}
+
+		break;
+	}
+	return FALSE;
 }

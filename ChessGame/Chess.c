@@ -7,6 +7,8 @@
 #define GetTeam(x,y) (Board[y][x].cp != NULL ? Board[y][x].cp->team : -1)
 #define GetType(x,y) (Board[y][x].cp != NULL ? Board[y][x].cp->type : -1)
 
+extern BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
+
 extern HINSTANCE g_hInst;
 extern HWND hMain;
 
@@ -72,19 +74,6 @@ void DeleteChessPiece(int x,int y) {
 	memset(Board[y][x].cp, 0, sizeof(ChessPiece));
 	free(Board[y][x].cp);
 	Board[y][x].cp = NULL;
-}
-
-int GetChessPiecePoint(ChessPiece* cp, Point* pt) {
-	for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
-		for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-			if (Board[iy][ix].cp == cp) {
-				pt->x = ix;
-				pt->y = iy;
-				return 1;
-			}
-		}
-	}
-	return 0;
 }
 
 void PaintChessPiece(HDC hdc,int sx,int sy) {
@@ -163,27 +152,7 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 		SelectedPoint.x = bx;
 		SelectedPoint.y = by;
 
-		switch (GetType(SelectedPoint.x,SelectedPoint.y)) {
-		case 0:
-			MovementOfKing(SelectedPoint,IdentifyMovement);
-			break;
-		case 1:
-			MovementOfRook(SelectedPoint, IdentifyMovement);
-			MovementOfBishop(SelectedPoint, IdentifyMovement);
-			break;
-		case 2:
-			MovementOfRook(SelectedPoint, IdentifyMovement);
-			break;
-		case 3:
-			MovementOfBishop(SelectedPoint, IdentifyMovement);
-			break;
-		case 4:
-			MovementOfKnight(SelectedPoint, IdentifyMovement);
-			break;
-		case 5:
-			MovementOfPawn(SelectedPoint, IdentifyMovement);
-			break;
-		}
+		MovementOfChessPieces(SelectedPoint, IdentifyMovement);
 
 		for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
 			for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
@@ -205,6 +174,15 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 			return;
 		
 		MoveChessPiece(bx, by, SelectedPoint.x, SelectedPoint.y, NULL);
+
+		//Promotion event of Pawn
+		if (GetType(bx, by) == 5 && (by == 0 || by == 7)) {
+			int ttype = -1,tteam  = GetTeam(bx,by);
+
+			ttype = DialogBox(g_hInst, MAKEINTRESOURCE(IDD_DIALOG1), hMain, DlgProc);
+			DeleteChessPiece(bx, by);
+			AddChessPiece(bx, by, ttype, tteam);
+		}
 
 		if (IsCheck(!GetTeam(bx,by))) {
 			MessageBox(hMain, TEXT("Check!!"), TEXT("emergency"), MB_OK);
@@ -236,6 +214,31 @@ void AllClearMovement() {
 			Board[iy][ix].bCanMove[0] = FALSE;
 			Board[iy][ix].bCanMove[1] = FALSE;
 		}
+	}
+}
+
+
+void MovementOfChessPieces(Point pt, IdentifyFunc ptFunc) {
+	switch (GetType(pt.x, pt.y)) {
+	case 0:
+		MovementOfKing(pt, ptFunc);
+		break;
+	case 1:
+		MovementOfRook(pt, ptFunc);
+		MovementOfBishop(pt, ptFunc);
+		break;
+	case 2:
+		MovementOfRook(pt, ptFunc);
+		break;
+	case 3:
+		MovementOfBishop(pt, ptFunc);
+		break;
+	case 4:
+		MovementOfKnight(pt, ptFunc);
+		break;
+	case 5:
+		MovementOfPawn(pt, ptFunc);
+		break;
 	}
 }
 
@@ -377,27 +380,7 @@ bool IsCheck(int team) {
 	for (pt.y = 0; pt.y < MAP_BLOCKCOUNT; pt.y++) {
 		for (pt.x = 0; pt.x < MAP_BLOCKCOUNT; pt.x++) {
 			if (Board[pt.y][pt.x].cp != NULL && GetTeam(pt.x, pt.y) != team) {
-				switch (GetType(pt.x, pt.y)) {
-				case 0:
-					MovementOfKing(pt, IdentifyCheck);
-					break;
-				case 1:
-					MovementOfRook(pt, IdentifyCheck);
-					MovementOfBishop(pt, IdentifyCheck);
-					break;
-				case 2:
-					MovementOfRook(pt, IdentifyCheck);
-					break;
-				case 3:
-					MovementOfBishop(pt, IdentifyCheck);
-					break;
-				case 4:
-					MovementOfKnight(pt, IdentifyCheck);
-					break;
-				case 5:
-					MovementOfPawn(pt, IdentifyCheck);
-					break;
-				}
+				MovementOfChessPieces(pt, IdentifyCheck);
 			}
 		}
 	}

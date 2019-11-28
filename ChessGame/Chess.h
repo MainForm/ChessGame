@@ -76,6 +76,8 @@ void AllClearMovement();	// bCanMove[] 의 원소를 전부 0으로 초기화하는 함수
 
 int IdentifyMovement(int x, int y, Point pt);// 나중에 설명
 
+void MovementOfChessPieces(Point pt, IdentifyFunc ptFunc);
+
 /* 각 말에 대한 이동 범위 지정 */
 void MovementOfKing(Point pt,IdentifyFunc ptFunc);
 void MovementOfRook(Point pt, IdentifyFunc ptFunc);
