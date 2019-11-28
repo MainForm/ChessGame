@@ -170,7 +170,7 @@ void ChessBoardMessage(int sx, int sy, int x, int y) {
 
 		for (int iy = 0; iy < MAP_BLOCKCOUNT; iy++) {
 			for (int ix = 0; ix < MAP_BLOCKCOUNT; ix++) {
-				if (Board[iy][ix].bCanMove[GetTeam(bx,by)] == true) {
+				if (Board[iy][ix].bCanMove[GetTeam(bx,by)]) {
 					bMoveMode = true;
 					return;
 				}
@@ -447,6 +447,7 @@ int IdentifyMovement(int x, int y, Point pt,int value) {
 	}
 
 	MoveChessPiece(pt.x, pt.y, x, y, &CPtmp);
+	int a = GetTeam(pt.x, pt.y);
 	Board[y][x].bCanMove[GetTeam(pt.x, pt.y)] = value;
 	
 	if (CPtmp.team != -1 || CPtmp.type != -1)
