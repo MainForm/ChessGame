@@ -12,7 +12,7 @@ typedef struct _Point {		// 우리가 선택한 기물의 위치를 기억하는 구조체
 	int y;
 }Point;
 
-typedef int (*IdentifyFunc)(int, int, Point);
+typedef int (*IdentifyFunc)(int, int, Point,int);
 
 typedef struct _ChessPiece {		// 기물에 대한 정보를 기억하는 구조체
 	int type;						// 0이면 king, 1이면 queen, 2이면 rook, 3이면 bishop, 4이면 knight, 5이면 pawn
@@ -35,7 +35,7 @@ else{
 */
 
 typedef struct _ChessBlock {
-	bool bCanMove[2];			// 기물이 움직일 수 있는 위치 [0]은 흑이 가능한 공간, [1]은 백이 가능한 공간
+	int bCanMove[2];			// 기물이 움직일 수 있는 위치 [0]은 흑이 가능한 공간, [1]은 백이 가능한 공간
 	ChessPiece* cp;				// NULL이면 기물이 없고, NULL이 아니면 기물이 있음!
 } ChessBlock;
 
@@ -74,7 +74,7 @@ int MoveChessPiece(int dx, int dy, int fx, int fy, ChessPiece* CPreturn);	// 기�
 void AllClearMovement();	// bCanMove[] 의 원소를 전부 0으로 초기화하는 함수
 
 
-int IdentifyMovement(int x, int y, Point pt);// 나중에 설명
+int IdentifyMovement(int x, int y, Point pt,int value);// 나중에 설명
 
 void MovementOfChessPieces(Point pt, IdentifyFunc ptFunc);
 
@@ -86,7 +86,15 @@ void MovementOfKnight(Point pt, IdentifyFunc ptFunc);
 void MovementOfPawn(Point pt, IdentifyFunc ptFunc);
 
 bool IsCheck(int team);		// ChessPiece 구조체의 멤버 team으로부터 그 team의 king이 check인지 아닌지 확인
-int IdentifyCheck(int x, int y, Point pt);
+int IdentifyCheck(int x, int y, Point pt,int value);
+
+bool IsCheckMate(int team);
 
 int GetTurn();		// 현재 누구 턴인지룰 확인 (0 : 흑의 1 : 백의 턴)
 #endif
+
+/*
+앙파상의 조건
+폰을 두번 전진하면 앙파상 = 1을 한다
+
+*/
